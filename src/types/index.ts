@@ -34,6 +34,7 @@ export interface Question {
   assistant_id: string;
   question: string;
   answer: string;
+  options?: string[];
   page: number;
   type: QuestionType;
   chapter: string;
@@ -62,6 +63,13 @@ export interface Exam {
   is_minus_mode: boolean;
   is_repeated_mode: boolean;
   is_public_mode: boolean;
+  question_ids: string[];
+}
+
+export interface StudentAnswer {
+  question_id: string;
+  selected_answer: string;
+  is_correct: boolean;
 }
 
 export interface ExamAnswer {
@@ -74,6 +82,7 @@ export interface ExamAnswer {
   end_at: string;
   grade: number;
   note: string;
+  answers: StudentAnswer[];
 }
 
 export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {

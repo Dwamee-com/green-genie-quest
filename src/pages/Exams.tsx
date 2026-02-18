@@ -1,45 +1,70 @@
-import { useState } from 'react';
-import { FileText, Pencil, Trash2, ToggleLeft, ToggleRight, Clock, Users } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { FileText, Pencil, Trash2, Clock, Eye, GripVertical, Check, X } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
-import { Exam } from '@/types';
+import { Exam, Question, QUESTION_TYPE_LABELS } from '@/types';
 import AppLayout from '@/components/layout/AppLayout';
 import PageHeader from '@/components/shared/PageHeader';
 import Modal from '@/components/shared/Modal';
 import EmptyState from '@/components/shared/EmptyState';
+import ExamPreview from '@/components/exam/ExamPreview';
 
 const Exams = () => {
-  const { exams, setExams, assistants } = useAppContext();
+  const { exams, setExams, assistants, questions } = useAppContext();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [previewExamId, setPreviewExamId] = useState<string | null>(null);
   const [form, setForm] = useState({
     user_id: 'u1', assistant_id: '', title: '', questions_number: 10,
     start_time: '', time_in_minutes: 60, allowed_time: 90,
     is_random_mode: false, is_minus_mode: false, is_repeated_mode: false, is_public_mode: false,
+    question_ids: [] as string[],
   });
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
   const openAdd = () => {
     setEditingId(null);
-    setForm({ user_id: 'u1', assistant_id: '', title: '', questions_number: 10, start_time: '', time_in_minutes: 60, allowed_time: 90, is_random_mode: false, is_minus_mode: false, is_repeated_mode: false, is_public_mode: false });
+    setForm({ user_id: 'u1', assistant_id: '', title: '', questions_number: 10, start_time: '', time_in_minutes: 60, allowed_time: 90, is_random_mode: false, is_minus_mode: false, is_repeated_mode: false, is_public_mode: false, question_ids: [] });
     setModalOpen(true);
   };
 
   const openEdit = (e: Exam) => {
     setEditingId(e.id);
-    setForm({ user_id: e.user_id, assistant_id: e.assistant_id, title: e.title, questions_number: e.questions_number, start_time: e.start_time, time_in_minutes: e.time_in_minutes, allowed_time: e.allowed_time, is_random_mode: e.is_random_mode, is_minus_mode: e.is_minus_mode, is_repeated_mode: e.is_repeated_mode, is_public_mode: e.is_public_mode });
+    setForm({ user_id: e.user_id, assistant_id: e.assistant_id, title: e.title, questions_number: e.questions_number, start_time: e.start_time, time_in_minutes: e.time_in_minutes, allowed_time: e.allowed_time, is_random_mode: e.is_random_mode, is_minus_mode: e.is_minus_mode, is_repeated_mode: e.is_repeated_mode, is_public_mode: e.is_public_mode, question_ids: e.question_ids || [] });
     setModalOpen(true);
   };
 
   const handleSave = () => {
     if (!form.title.trim()) return;
     if (editingId) {
-      setExams((prev) => prev.map((e) => (e.id === editingId ? { ...e, ...form } : e)));
+      setExams((prev) => prev.map((e) => (e.id === editingId ? { ...e, ...form, questions_number: form.question_ids.length } : e)));
     } else {
-      setExams((prev) => [...prev, { ...form, id: Date.now().toString() }]);
+      setExams((prev) => [...prev, { ...form, id: Date.now().toString(), questions_number: form.question_ids.length }]);
     }
     setModalOpen(false);
   };
 
   const handleDelete = (id: string) => setExams((prev) => prev.filter((e) => e.id !== id));
+
+  const toggleQuestion = (qId: string) => {
+    setForm(prev => ({
+      ...prev,
+      question_ids: prev.question_ids.includes(qId)
+        ? prev.question_ids.filter(id => id !== qId)
+        : [...prev.question_ids, qId],
+    }));
+  };
+
+  const handleDragStart = (idx: number) => setDraggedIdx(idx);
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === idx) return;
+    const newIds = [...form.question_ids];
+    const [removed] = newIds.splice(draggedIdx, 1);
+    newIds.splice(idx, 0, removed);
+    setForm(prev => ({ ...prev, question_ids: newIds }));
+    setDraggedIdx(idx);
+  };
+  const handleDragEnd = () => setDraggedIdx(null);
 
   const ToggleSwitch = ({ value, onChange, label }: { value: boolean; onChange: () => void; label: string }) => (
     <div className="flex items-center justify-between py-2">
@@ -49,6 +74,16 @@ const Exams = () => {
       </button>
     </div>
   );
+
+  const selectedQuestions = form.question_ids.map(id => questions.find(q => q.id === id)).filter(Boolean) as Question[];
+  const availableQuestions = questions.filter(q => !form.question_ids.includes(q.id));
+
+  if (previewExamId) {
+    const exam = exams.find(e => e.id === previewExamId);
+    if (exam) {
+      return <ExamPreview exam={exam} onClose={() => setPreviewExamId(null)} />;
+    }
+  }
 
   return (
     <AppLayout>
@@ -71,7 +106,7 @@ const Exams = () => {
                 {assistant && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{assistant.name}</span>}
                 <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <HelpCircle className="w-4 h-4" /> {exam.questions_number} سؤال
+                    <HelpCircle className="w-4 h-4" /> {exam.question_ids?.length || exam.questions_number} سؤال
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Clock className="w-4 h-4" /> {exam.time_in_minutes} دقيقة
@@ -83,8 +118,11 @@ const Exams = () => {
                   {exam.is_repeated_mode && <span className="text-xs bg-warning/10 text-warning px-2 py-0.5 rounded-full">تكرار</span>}
                 </div>
                 <div className="flex items-center gap-2 mt-4">
-                  <button onClick={() => openEdit(exam)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-accent text-sm font-medium transition-colors">
-                    <Pencil className="w-3.5 h-3.5" /> تعديل
+                  <button onClick={() => setPreviewExamId(exam.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-sm font-medium transition-colors">
+                    <Eye className="w-3.5 h-3.5" /> معاينة الاختبار
+                  </button>
+                  <button onClick={() => openEdit(exam)} className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-accent transition-colors">
+                    <Pencil className="w-4 h-4" />
                   </button>
                   <button onClick={() => handleDelete(exam.id)} className="p-2 rounded-lg bg-muted text-destructive hover:bg-destructive/10 transition-colors">
                     <Trash2 className="w-4 h-4" />
@@ -109,11 +147,7 @@ const Exams = () => {
               {assistants.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">عدد الأسئلة</label>
-              <input type="number" value={form.questions_number} onChange={(e) => setForm({ ...form, questions_number: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">المدة (دقائق)</label>
               <input type="number" value={form.time_in_minutes} onChange={(e) => setForm({ ...form, time_in_minutes: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
@@ -127,6 +161,55 @@ const Exams = () => {
             <label className="block text-sm font-medium text-foreground mb-1.5">وقت البدء</label>
             <input type="datetime-local" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
+
+          {/* Question Selection */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">أسئلة الاختبار ({form.question_ids.length} سؤال محدد)</label>
+
+            {/* Selected questions - draggable */}
+            {selectedQuestions.length > 0 && (
+              <div className="space-y-1.5 mb-3">
+                <p className="text-xs text-muted-foreground font-medium">الأسئلة المحددة (اسحب لإعادة الترتيب):</p>
+                {selectedQuestions.map((q, idx) => (
+                  <div
+                    key={q.id}
+                    draggable
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-primary/30 bg-primary/5 text-sm cursor-grab active:cursor-grabbing transition-all ${draggedIdx === idx ? 'opacity-50 scale-95' : ''}`}
+                  >
+                    <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="w-6 h-6 rounded-md bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold shrink-0">{idx + 1}</span>
+                    <span className="text-foreground truncate flex-1">{q.question}</span>
+                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0">{QUESTION_TYPE_LABELS[q.type]}</span>
+                    <button onClick={() => toggleQuestion(q.id)} className="p-1 rounded text-destructive hover:bg-destructive/10 shrink-0">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Available questions */}
+            {availableQuestions.length > 0 && (
+              <div className="space-y-1.5 max-h-40 overflow-y-auto border border-border rounded-xl p-2">
+                <p className="text-xs text-muted-foreground font-medium px-1">الأسئلة المتاحة:</p>
+                {availableQuestions.map((q) => (
+                  <button
+                    key={q.id}
+                    onClick={() => toggleQuestion(q.id)}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-muted hover:bg-accent text-sm text-right transition-colors"
+                  >
+                    <Check className="w-4 h-4 text-muted-foreground/30 shrink-0" />
+                    <span className="text-foreground truncate flex-1">{q.question}</span>
+                    <span className="text-xs bg-muted-foreground/10 text-muted-foreground px-1.5 py-0.5 rounded-full shrink-0">{QUESTION_TYPE_LABELS[q.type]}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="bg-muted rounded-xl p-4 space-y-1">
             <p className="text-sm font-bold text-foreground mb-2">إعدادات الاختبار</p>
             <ToggleSwitch value={form.is_random_mode} onChange={() => setForm({ ...form, is_random_mode: !form.is_random_mode })} label="ترتيب عشوائي للأسئلة" />
