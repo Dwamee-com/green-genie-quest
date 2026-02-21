@@ -1,7 +1,15 @@
-import { Brain, Sparkles, FileText, BarChart3, Shield, Users, Check, Star, ArrowLeft, Zap, BookOpen, Award } from 'lucide-react';
+import { Brain, Sparkles, FileText, BarChart3, Shield, Users, Check, Star, ArrowLeft, Zap, BookOpen, Award, LayoutGrid, Bot, HelpCircle, ClipboardList, ChevronLeft, Headphones, Mail, MessageCircle, ArrowDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Landing = () => {
+  const steps = [
+    { icon: LayoutGrid, title: 'أنشئ التصنيفات', desc: 'نظّم المحتوى في تصنيفات مثل الرياضيات، العلوم، اللغة العربية', color: 'from-blue-500 to-blue-600' },
+    { icon: Bot, title: 'أضف المساعدين', desc: 'أنشئ مساعداً ذكياً وارفع ملفاتك (PDF, Word) لتوليد الأسئلة', color: 'from-indigo-500 to-indigo-600' },
+    { icon: HelpCircle, title: 'ولّد الأسئلة', desc: 'استخدم الذكاء الاصطناعي لتوليد أسئلة متنوعة تلقائياً أو أضفها يدوياً', color: 'from-violet-500 to-violet-600' },
+    { icon: FileText, title: 'أنشئ الاختبار', desc: 'حدد الأسئلة، الوقت، والإعدادات لإنشاء اختبار احترافي', color: 'from-purple-500 to-purple-600' },
+    { icon: ClipboardList, title: 'راجع النتائج', desc: 'تابع أداء الطلاب بتحليلات شاملة ورسوم بيانية تفصيلية', color: 'from-pink-500 to-pink-600' },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -13,13 +21,21 @@ const Landing = () => {
             </div>
             <span className="text-xl font-bold text-foreground">الاستبيانات الذكية</span>
           </div>
-          <Link
-            to="/categories"
-            className="gradient-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2"
-          >
-            ابدأ الآن
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="text-foreground/70 hover:text-foreground px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+            >
+              تسجيل الدخول
+            </Link>
+            <Link
+              to="/categories"
+              className="gradient-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2"
+            >
+              ابدأ الآن
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -46,17 +62,17 @@ const Landing = () => {
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link
-                to="/categories"
+                to="/register"
                 className="gradient-primary text-primary-foreground px-8 py-3.5 rounded-xl text-base font-bold hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2"
               >
                 ابدأ مجاناً
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <a
-                href="#features"
+                href="#how-it-works"
                 className="bg-primary-foreground/10 text-primary-foreground border border-primary-foreground/20 px-8 py-3.5 rounded-xl text-base font-medium hover:bg-primary-foreground/20 transition-colors"
               >
-                اكتشف المزيد
+                كيف يعمل؟
               </a>
             </div>
           </div>
@@ -76,6 +92,47 @@ const Landing = () => {
               <div key={stat.label}>
                 <p className="text-3xl font-black text-primary">{stat.value}</p>
                 <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works */}
+      <section id="how-it-works" className="py-20 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-black text-foreground mb-4">كيف يعمل النظام؟</h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">خمس خطوات بسيطة لإنشاء اختبارات احترافية</p>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            {steps.map((step, idx) => (
+              <div key={step.title} className="relative">
+                <div
+                  className="flex items-start gap-6 animate-fade-in"
+                  style={{ animationDelay: `${idx * 0.15}s`, animationFillMode: 'both' }}
+                >
+                  {/* Step Number + Icon */}
+                  <div className="flex flex-col items-center shrink-0">
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg relative`}>
+                      <step.icon className="w-7 h-7 text-white" />
+                      <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-background border-2 border-primary text-primary text-xs font-black flex items-center justify-center">
+                        {idx + 1}
+                      </span>
+                    </div>
+                    {idx < steps.length - 1 && (
+                      <div className="flex flex-col items-center py-2">
+                        <div className="w-0.5 h-8 bg-primary/20" />
+                        <ArrowDown className="w-4 h-4 text-primary/40 -mt-1" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Content */}
+                  <div className="bg-card rounded-2xl border border-border p-5 flex-1 hover:shadow-lg hover:border-primary/30 transition-all duration-300 mb-2">
+                    <h3 className="text-lg font-bold text-foreground mb-1">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -165,15 +222,16 @@ const Landing = () => {
                     </li>
                   ))}
                 </ul>
-                <button
-                  className={`w-full py-3 rounded-xl text-sm font-bold transition-colors ${
+                <Link
+                  to="/register"
+                  className={`block w-full text-center py-3 rounded-xl text-sm font-bold transition-colors ${
                     plan.popular
                       ? 'bg-primary-foreground text-primary hover:bg-primary-foreground/90'
                       : 'bg-primary text-primary-foreground hover:opacity-90'
                   }`}
                 >
                   اختر الخطة
-                </button>
+                </Link>
               </div>
             ))}
           </div>
@@ -210,6 +268,34 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Support Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-black text-foreground mb-4">الدعم الفني</h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">فريقنا متاح لمساعدتك على مدار الساعة</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              { icon: Headphones, title: 'الدعم المباشر', desc: 'تحدث مع فريق الدعم مباشرة عبر الدردشة الحية للحصول على مساعدة فورية.', action: 'ابدأ محادثة' },
+              { icon: Mail, title: 'البريد الإلكتروني', desc: 'أرسل استفسارك عبر البريد وسنرد عليك خلال 24 ساعة كحد أقصى.', action: 'أرسل رسالة' },
+              { icon: MessageCircle, title: 'الأسئلة الشائعة', desc: 'تصفح مكتبة الأسئلة الشائعة للعثور على إجابات سريعة لأسئلتك.', action: 'تصفح الأسئلة' },
+            ].map((item) => (
+              <div key={item.title} className="bg-card rounded-2xl p-6 border border-border text-center hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
+                <button className="gradient-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity">
+                  {item.action}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20">
         <div className="container mx-auto px-6">
@@ -222,7 +308,7 @@ const Landing = () => {
               <h2 className="text-3xl font-black text-primary-foreground mb-4">مستعد للبدء؟</h2>
               <p className="text-primary-foreground/70 mb-8 max-w-md mx-auto">انضم لآلاف المعلمين والمدربين الذين يستخدمون منصتنا لإنشاء اختبارات احترافية</p>
               <Link
-                to="/categories"
+                to="/register"
                 className="inline-flex items-center gap-2 gradient-primary text-primary-foreground px-8 py-3.5 rounded-xl text-base font-bold hover:opacity-90 transition-opacity shadow-glow"
               >
                 ابدأ الآن مجاناً

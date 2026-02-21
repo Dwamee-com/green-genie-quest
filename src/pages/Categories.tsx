@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { LayoutGrid, Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAppContext } from '@/context/AppContext';
 import { Category } from '@/types';
 import AppLayout from '@/components/layout/AppLayout';
@@ -95,12 +96,18 @@ const Categories = () => {
                 </div>
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{cat.description}</p>
                 <div className="flex items-center gap-2">
+                  <Link
+                    to={`/categories/${cat.id}`}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-sm font-medium transition-colors"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    عرض
+                  </Link>
                   <button
                     onClick={() => openEdit(cat)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors"
+                    className="flex items-center justify-center p-2 rounded-lg bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <Pencil className="w-3.5 h-3.5" />
-                    تعديل
                   </button>
                   <button
                     onClick={() => handleDelete(cat.id)}

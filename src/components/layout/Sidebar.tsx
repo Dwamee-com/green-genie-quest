@@ -8,6 +8,7 @@ import {
   Home,
   ChevronRight,
   Brain,
+  LogIn,
 } from 'lucide-react';
 
 const navItems = [

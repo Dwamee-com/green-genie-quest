@@ -10,7 +10,9 @@ import EmptyState from '@/components/shared/EmptyState';
 type Mode = 'manual' | 'ai';
 
 const Questions = () => {
-  const { questions, setQuestions, assistants } = useAppContext();
+  const { questions, setQuestions, assistants, categories } = useAppContext();
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterAssistant, setFilterAssistant] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -115,6 +117,13 @@ const Questions = () => {
     }
   };
 
+  const filteredAssistants = filterCategory ? assistants.filter(a => a.category_id === filterCategory) : assistants;
+  const filteredQuestions = questions.filter(q => {
+    if (filterAssistant && q.assistant_id !== filterAssistant) return false;
+    if (filterCategory && !filteredAssistants.some(a => a.id === q.assistant_id)) return false;
+    return true;
+  });
+
   return (
     <AppLayout>
       <PageHeader title="الأسئلة" description="إدارة بنك الأسئلة" icon={HelpCircle} actionLabel="إضافة يدوية" onAction={openManual}>
@@ -123,18 +132,34 @@ const Questions = () => {
         </button>
       </PageHeader>
 
-      {questions.length === 0 ? (
+      {/* Filters */}
+      <div className="flex items-center gap-3 mb-6 flex-wrap">
+        <select value={filterCategory} onChange={(e) => { setFilterCategory(e.target.value); setFilterAssistant(''); }} className="px-4 py-2 rounded-xl bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <option value="">كل التصنيفات</option>
+          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <select value={filterAssistant} onChange={(e) => setFilterAssistant(e.target.value)} className="px-4 py-2 rounded-xl bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          <option value="">كل المساعدين</option>
+          {filteredAssistants.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+        </select>
+        <span className="text-sm text-muted-foreground">{filteredQuestions.length} سؤال</span>
+      </div>
+
+      {filteredQuestions.length === 0 ? (
         <EmptyState icon="❓" title="لا توجد أسئلة" description="أضف أسئلة يدوياً أو استخدم الذكاء الاصطناعي لتوليدها" />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {questions.map((q, i) => (
+          {filteredQuestions.map((q, i) => {
+            const qAssistant = assistants.find(a => a.id === q.assistant_id);
+            return (
             <div key={q.id} className="bg-card rounded-2xl border border-border p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300 animate-fade-in flex flex-col" style={{ animationDelay: `${i * 0.04}s` }}>
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <span className="text-2xl">{typeIcon(q.type)}</span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{QUESTION_TYPE_LABELS[q.type]}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${complexityColor(q.complexity)}`}>{COMPLEXITY_LABELS[q.complexity]}</span>
+                  {qAssistant && <span className="text-xs bg-info/10 text-info px-2 py-0.5 rounded-full">{qAssistant.name}</span>}
                 </div>
               </div>
 
@@ -185,7 +210,8 @@ const Questions = () => {
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

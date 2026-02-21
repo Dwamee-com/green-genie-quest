@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Bot, Eye, EyeOff, Pencil, Trash2, Upload, Tag, Send, Plus, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAppContext } from '@/context/AppContext';
 import { Assistant, AssistantFile } from '@/types';
 import AppLayout from '@/components/layout/AppLayout';
@@ -118,8 +119,11 @@ const Assistants = () => {
                   <span className="text-sm text-muted-foreground">{a.files.length} ملفات</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => openFiles(a)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors">
-                    <Upload className="w-3.5 h-3.5" /> الملفات
+                  <Link to={`/assistants/${a.id}`} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors">
+                    <Eye className="w-3.5 h-3.5" /> عرض
+                  </Link>
+                  <button onClick={() => openFiles(a)} className="flex items-center justify-center p-2 rounded-lg bg-muted text-muted-foreground hover:bg-accent transition-colors">
+                    <Upload className="w-3.5 h-3.5" />
                   </button>
                   <button onClick={() => openEdit(a)} className="flex items-center justify-center p-2 rounded-lg bg-muted text-muted-foreground hover:bg-accent transition-colors">
                     <Pencil className="w-4 h-4" />
