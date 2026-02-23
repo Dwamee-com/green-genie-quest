@@ -8,16 +8,25 @@ import {
   Home,
   ChevronRight,
   Brain,
-  LogIn,
+  Headphones,
+  LayoutDashboard,
+  BarChart3,
+  Trash2,
+  CreditCard,
 } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: 'الرئيسية', icon: Home },
+  { path: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
   { path: '/categories', label: 'التصنيفات', icon: LayoutGrid },
   { path: '/assistants', label: 'المساعدون الذكيون', icon: Bot },
   { path: '/questions', label: 'الأسئلة', icon: HelpCircle },
   { path: '/exams', label: 'الاختبارات', icon: FileText },
   { path: '/exam-answers', label: 'إجابات الاختبارات', icon: ClipboardList },
+  { path: '/statistics', label: 'الإحصائيات', icon: BarChart3 },
+  { path: '/subscriptions', label: 'الاشتراكات', icon: CreditCard },
+  { path: '/trash', label: 'سلة المحذوفات', icon: Trash2 },
+  { path: '/support', label: 'الدعم الفني', icon: Headphones },
 ];
 
 const Sidebar = () => {

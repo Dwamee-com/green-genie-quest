@@ -14,6 +14,11 @@ import AssistantDetail from "./pages/AssistantDetail";
 import Questions from "./pages/Questions";
 import Exams from "./pages/Exams";
 import ExamAnswers from "./pages/ExamAnswers";
+import Support from "./pages/Support";
+import Dashboard from "./pages/Dashboard";
+import Statistics from "./pages/Statistics";
+import Trash from "./pages/Trash";
+import Subscriptions from "./pages/Subscriptions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +41,11 @@ const App = () => (
             <Route path="/questions" element={<Questions />} />
             <Route path="/exams" element={<Exams />} />
             <Route path="/exam-answers" element={<ExamAnswers />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/statistics" element={<Statistics />} />
+            <Route path="/trash" element={<Trash />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
