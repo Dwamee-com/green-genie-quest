@@ -14,6 +14,11 @@ import AssistantDetail from "./pages/AssistantDetail";
 import Questions from "./pages/Questions";
 import Exams from "./pages/Exams";
 import ExamAnswers from "./pages/ExamAnswers";
+import Support from "./pages/Support";
+import Dashboard from "./pages/Dashboard";
+import Statistics from "./pages/Statistics";
+import Trash from "./pages/Trash";
+import Subscriptions from "./pages/Subscriptions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
